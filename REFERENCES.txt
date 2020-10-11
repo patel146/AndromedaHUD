@@ -1,0 +1,9 @@
+# Wiring Arduino to Oled Display:
+https://www.youtube.com/watch?v=7x1P80X1V3E&t=633s
+
+// Note, Adafruit Libraries are under BSD license
+
+# Adafruit GFX Library 
+
+# Adafruit SSD1306 Library
+
