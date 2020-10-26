@@ -39,7 +39,12 @@
 #include <Adafruit_SSD1306.h> //library for displaying to OLED
 #include <Adafruit_BMP085.h>  //library for BMP180 
 #include <MPU6050_tockn.h>    //library to read MPU6050 data
+#include "TinyGPS++.h"
+#include "SoftwareSerial.h"
 
+//SoftwareSerial serial_connection(10, 11); //RX=pin 10, TX=pin 11
+
+//TinyGPSPlus gps;              //This is the GPS object that will pretty much do all the grunt work with the NMEA data
 Adafruit_BMP085 bmp;          //defining the bmp180 object to be referred to as bmp
 MPU6050 mpu6050(Wire);        //defining the MPU6050 object to be referred to as mpu6050
 
@@ -51,6 +56,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET); // Dec
 
 void setup() {
   Serial.begin(9600);
+  //serial_connection.begin(9600);
   Wire.begin();                  // from tockn code, initializes Wire
   mpu6050.begin();               //initializes MPU6050
   mpu6050.calcGyroOffsets(true); //takes a couple seconds to find orientation of sensor
@@ -82,14 +88,16 @@ void setup() {
 }
 
 void loop() {
-  display.setTextSize(1);                   // Draw 1X-scale text  //Reads, updates and displays altimeter data continuously 
+  display.setTextSize(0.5);                   // Draw 1X-scale text  //Reads, updates and displays altimeter data continuously 
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(10, 0);
-  display.drawRect(20,20,10,5,SSD1306_WHITE);
+  display.setCursor(98, 28);
+  display.drawRect(96,26,30,12,SSD1306_WHITE);
   display.print(round(bmp.readAltitude()));
-  display.setCursor(10,20);
+  display.setCursor(64,55);
   mpu6050.update();
   display.print(round(mpu6050.getGyroAngleY()));
+  //display.setCursor(10,0);
+  //display.print(gps.speed.mph());
   display.display();
   display.clearDisplay();
 }
