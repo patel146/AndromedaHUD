@@ -39,7 +39,6 @@
 #include <Adafruit_SSD1306.h> //library for displaying to OLED
 #include <Adafruit_BMP085.h>  //library for BMP180 
 #include <MPU6050_tockn.h>    //library to read MPU6050 data
-#include "U8glib.h"
 
 Adafruit_BMP085 bmp;          //defining the bmp180 object to be referred to as bmp
 MPU6050 mpu6050(Wire);        //defining the MPU6050 object to be referred to as mpu6050
@@ -74,6 +73,7 @@ void setup() {
   display.setTextSize(2);               //Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);  //Need to specify text colour even though this is a monochromatic display
   display.setCursor(10, 0);
+  display.drawRect(20,20,10,5,SSD1306_WHITE);
   display.println(F("Project"));
   display.setCursor(10,30);
   display.println(F("Andromeda"));
@@ -83,7 +83,6 @@ void setup() {
 }
 
 void loop() {
-  
   display.setTextSize(1);                   // Draw 1X-scale text  //Reads, updates and displays altimeter data continuously 
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(10, 0);
@@ -94,23 +93,4 @@ void loop() {
   display.print(round(mpu6050.getGyroAngleY()));
   display.display();
   display.clearDisplay();
-
-  Serial.println(freeMemory());
-}
-#ifdef __arm__
-// should use uinstd.h to define sbrk but Due causes a conflict
-extern "C" char* sbrk(int incr);
-#else  // __ARM__
-extern char *__brkval;
-#endif  // __arm__
-
-int freeMemory() {
-  char top;
-#ifdef __arm__
-  return &top - reinterpret_cast<char*>(sbrk(0));
-#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
-  return &top - __brkval;
-#else  // __arm__
-  return __brkval ? &top - __brkval : &top - __malloc_heap_start;
-#endif  // __arm__
 }
