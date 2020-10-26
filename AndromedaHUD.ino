@@ -73,7 +73,6 @@ void setup() {
   display.setTextSize(2);               //Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);  //Need to specify text colour even though this is a monochromatic display
   display.setCursor(10, 0);
-  display.drawRect(20,20,10,5,SSD1306_WHITE);
   display.println(F("Project"));
   display.setCursor(10,30);
   display.println(F("Andromeda"));
@@ -86,7 +85,7 @@ void loop() {
   display.setTextSize(1);                   // Draw 1X-scale text  //Reads, updates and displays altimeter data continuously 
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(10, 0);
-  //display.println(F("ALT: "));
+  display.drawRect(20,20,10,5,SSD1306_WHITE);
   display.print(round(bmp.readAltitude()));
   display.setCursor(10,20);
   mpu6050.update();
