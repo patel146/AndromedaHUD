@@ -35,89 +35,81 @@
 
 #include <SPI.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_BMP085.h>
+#include <Adafruit_GFX.h>     //library for OLED graphics
+#include <Adafruit_SSD1306.h> //library for displaying to OLED
+#include <Adafruit_BMP085.h>  //library for BMP180 
+#include <MPU6050_tockn.h>    //library to read MPU6050 data
 
-Adafruit_BMP085 bmp;
+Adafruit_BMP085 bmp;          //defining the bmp180 object to be referred to as bmp
+MPU6050 mpu6050(Wire);        //defining the MPU6050 object to be referred to as mpu6050
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define SCREEN_WIDTH 128      // OLED display width, in pixels 
+#define SCREEN_HEIGHT 64      // OLED display height, in pixels                                                                
+#define OLED_RESET     -1     // Reset pin set to -1 because sharing arduino's reset pin
 
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
-#define NUMFLAKES     10 // Number of snowflakes in the animation example
-
-#define LOGO_HEIGHT   16
-#define LOGO_WIDTH    16
-static const unsigned char PROGMEM logo_bmp[] =
-{ B00000000, B11000000,
-  B00000001, B11000000,
-  B00000001, B11000000,
-  B00000011, B11100000,
-  B11110011, B11100000,
-  B11111110, B11111000,
-  B01111110, B11111111,
-  B00110011, B10011111,
-  B00011111, B11111100,
-  B00001101, B01110000,
-  B00011011, B10100000,
-  B00111111, B11100000,
-  B00111111, B11110000,
-  B01111100, B11110000,
-  B01110000, B01110000,
-  B00000000, B00110000 };
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET); // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 
 void setup() {
   Serial.begin(9600);
+  Wire.begin();                  // from tockn code, initializes Wire
+  mpu6050.begin();               //initializes MPU6050
+  mpu6050.calcGyroOffsets(true); //takes a couple seconds to find orientation of sensor
+
     if (!bmp.begin()) {
-  Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+  Serial.println(F("Could not find a valid BMP085 sensor, check wiring!"));        // checks if BMP180 is connected, returns error message if not and creates infinite loop to halt code
   while (1) {}
   }
 
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64      // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
 
-  // Show initial display buffer contents on the screen --
-  // the library initializes this with an Adafruit splash screen.
-  display.display();
-  delay(2000); // Pause for 2 seconds
+  display.display();      //The first display.display() call shows the Adafruit splash screen 
+  delay(1000);            //Pause for 1 second
+  display.clearDisplay(); //Clear the splash screen
 
-  // Clear the buffer
-  display.clearDisplay();
-
-  display.setTextSize(2); // Draw 2X-scale text
-  display.setTextColor(SSD1306_WHITE);
+  
+  display.setTextSize(2);               //Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);  //Need to specify text colour even though this is a monochromatic display
   display.setCursor(10, 0);
   display.println(F("Project"));
   display.setCursor(10,30);
   display.println(F("Andromeda"));
   display.display();
-  delay(2000);
+  delay(1000);
   display.clearDisplay();
 }
 
 void loop() {
-  display.setTextSize(1); // Draw 2X-scale text
+  
+  display.setTextSize(1);                   // Draw 1X-scale text  //Reads, updates and displays altimeter data continuously 
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(10, 0);
-  display.print(bmp.readAltitude());
+  //display.println(F("ALT: "));
+  display.print(round(bmp.readAltitude()));
+  display.setCursor(10,20);
+  mpu6050.update();
+  display.print(round(mpu6050.getGyroAngleY()));
   display.display();
   display.clearDisplay();
+
+  Serial.println(freeMemory());
 }
+#ifdef __arm__
+// should use uinstd.h to define sbrk but Due causes a conflict
+extern "C" char* sbrk(int incr);
+#else  // __ARM__
+extern char *__brkval;
+#endif  // __arm__
 
-void testdrawbitmap(void) {
-  display.clearDisplay();
-
-  display.drawBitmap(
-    (display.width()  - LOGO_WIDTH ) / 2,
-    (display.height() - LOGO_HEIGHT) / 2,
-    logo_bmp, LOGO_WIDTH, LOGO_HEIGHT, 1);
-  display.display();
-  delay(1000);
+int freeMemory() {
+  char top;
+#ifdef __arm__
+  return &top - reinterpret_cast<char*>(sbrk(0));
+#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
+  return &top - __brkval;
+#else  // __arm__
+  return __brkval ? &top - __brkval : &top - __malloc_heap_start;
+#endif  // __arm__
 }
