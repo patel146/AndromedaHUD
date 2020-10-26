@@ -32,14 +32,15 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ****************************************************/
-
-#include <SPI.h>
+//Removed SPI.h library
 #include <Wire.h>
 #include <Adafruit_GFX.h>     //library for OLED graphics
 #include <Adafruit_SSD1306.h> //library for displaying to OLED
 #include <Adafruit_BMP085.h>  //library for BMP180 
 #include <MPU6050_tockn.h>    //library to read MPU6050 data
+#include <TinyGPS++.h>        //this makes program fail
 
+//TinyGPSPlus gps;              //This is the GPS object that will pretty much do all the grunt work with the NMEA data
 Adafruit_BMP085 bmp;          //defining the bmp180 object to be referred to as bmp
 MPU6050 mpu6050(Wire);        //defining the MPU6050 object to be referred to as mpu6050
 
@@ -56,40 +57,41 @@ void setup() {
   mpu6050.calcGyroOffsets(true); //takes a couple seconds to find orientation of sensor
 
     if (!bmp.begin()) {
-  Serial.println(F("Could not find a valid BMP085 sensor, check wiring!"));        // checks if BMP180 is connected, returns error message if not and creates infinite loop to halt code
+  Serial.println(F("No BMP085"));        // checks if BMP180 is connected, returns error message if not and creates infinite loop to halt code
   while (1) {}
   }
 
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64      // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-    Serial.println(F("SSD1306 allocation failed"));
+    Serial.println(F("SSD1306 conn fail"));
     for(;;); // Don't proceed, loop forever
   }
 
-  display.display();      //The first display.display() call shows the Adafruit splash screen 
-  delay(1000);            //Pause for 1 second
-  display.clearDisplay(); //Clear the splash screen
+  //display.display();      //The first display.display() call shows the Adafruit splash screen 
+  //delay(1000);            //Pause for 1 second
+  //display.clearDisplay(); //Clear the splash screen
 
   
-  display.setTextSize(2);               //Draw 2X-scale text
-  display.setTextColor(SSD1306_WHITE);  //Need to specify text colour even though this is a monochromatic display
-  display.setCursor(10, 0);
-  display.println(F("Project"));
-  display.setCursor(10,30);
-  display.println(F("Andromeda"));
-  display.display();
-  delay(1000);
-  display.clearDisplay();
+  //display.setTextSize(2);               //Draw 2X-scale text
+  //display.setTextColor(SSD1306_WHITE);  //Need to specify text colour even though this is a monochromatic display
+  //display.setCursor(10, 0);
+  //display.println(F("Project"));
+  //display.setCursor(10,30);
+  //display.println(F("Andromeda"));
+  //display.display();
+  //delay(1000);
+  //display.clearDisplay();
 }
 
 void loop() {
-  display.setTextSize(1);                   // Draw 1X-scale text  //Reads, updates and displays altimeter data continuously 
+  display.setTextSize(0.5);                   // Draw 1X-scale text  //Reads, updates and displays altimeter data continuously 
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(10, 0);
-  display.drawRect(20,20,10,5,SSD1306_WHITE);
+  display.setCursor(98, 28);
+  display.drawRect(96,26,30,12,SSD1306_WHITE);
   display.print(round(bmp.readAltitude()));
-  display.setCursor(10,20);
+  display.setCursor(64,55);
   mpu6050.update();
   display.print(round(mpu6050.getGyroAngleY()));
+  
   display.display();
   display.clearDisplay();
 }
