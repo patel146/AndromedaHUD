@@ -39,7 +39,6 @@
 #include <Adafruit_SSD1306.h> //library for displaying to OLED
 #include <Adafruit_BMP085.h>  //library for BMP180 
 #include <MPU6050_tockn.h>    //library to read MPU6050 data
-#include "U8glib.h"
 
 Adafruit_BMP085 bmp;          //defining the bmp180 object to be referred to as bmp
 MPU6050 mpu6050(Wire);        //defining the MPU6050 object to be referred to as mpu6050
