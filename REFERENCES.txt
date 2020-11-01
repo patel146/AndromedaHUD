@@ -7,3 +7,12 @@ https://www.youtube.com/watch?v=7x1P80X1V3E&t=633s
 
 # Adafruit SSD1306 Library
 
+// Using AltSoftwareSerial
+# https://codebender.cc/example/AltSoftSerial/Test#Test.ino
+
+// Tockn MPU6050 library for getting data from accelerometer and gyroscope
+# https://github.com/tockn/MPU6050_tockn 
+
+// How to mirror the display so it can be reflected and still read: 
+// Go to "C:\Users\YOURNAME\Documents\Arduino\libraries\U8glib\src\clib\u8g_dev_ssd1306_128x64.c" and change all instances of "0x0c8" to "0x0c0"
+# https://github.com/olikraus/u8glib/issues/426 
