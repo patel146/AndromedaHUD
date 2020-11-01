@@ -14,6 +14,7 @@ TinyGPSPlus gps;//This is the GPS object that will pretty much do all the grunt 
 int alt;
 int bank;
 int gs;
+int gforce;
 
 void setup(void)
 {
@@ -36,9 +37,9 @@ void loop(void)
 {
   alt = bmp.readAltitude();
   bank = mpu6050.getGyroAngleY();
+  gforce = mpu6050.getAccZ();
 
-  mpu6050.update();
-
+ 
   while(as.available())
   {
     gps.encode(as.read());
@@ -47,6 +48,8 @@ void loop(void)
   {
     gs = gps.speed.mph();
   }
+
+  mpu6050.update();
   
     u8g.firstPage();
     do {
@@ -61,5 +64,7 @@ void draw(void)
     u8g.print(bank);
     u8g.setPrintPos(10, 28);
     u8g.print(gs);
+    u8g.setPrintPos(10, 38);
+    u8g.print(gforce);
     
 }
